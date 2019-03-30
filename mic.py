@@ -3,12 +3,17 @@ import numpy as np
 import sys, time
 import librosa
 import librosa.display
+from keras.models import load_model
+
+input_r, input_c = 256,173
 
 
 def main():
     CHUNK = 1024  # バッファのサンプル数
     length = 16
     RATE = 16000  # サンプルレート16kHz
+
+    model = load_model('voice.h5')
 
     raw_data = np.zeros((CHUNK * length,), dtype='float32')  # 16*1024サンプル →　1秒分
 
@@ -39,10 +44,10 @@ def main():
             # melspecs のshapeは　(n_mels, t)
             melspecs = librosa.power_to_db(melspecs, ref=np.max)
 
-            melspecs = melspecs[np.newaxis, np.newaxis, :]  # (1,1,n_mels,t)
+            melspecs = melspecs.reshape(input_r,input_c,1).astype('float32')/np.max(melspecs)
             print(melspecs.shape)
 
-
+            # print(判定結果)
 
         except KeyboardInterrupt:
             break

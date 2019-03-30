@@ -1,12 +1,13 @@
 import keras
-from keras.datasets import mnist
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPooling2D
-from keras.optimizers import RMSprop
+from keras.optimizers import Adadelta
 from keras.callbacks import Callback, CSVLogger
 from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
-import argparse
+import numpy as np
+
+input_r, input_c = 256,173
 
 
 class PlotLosses(Callback):
@@ -67,25 +68,25 @@ def plot_result(history):
     plt.show()
 
 
-def main(epochs=5, batch_size=128):
-    # load MNIST data
-    (x_train, y_train), (x_test, y_test) = mnist.load_data()
-    x_train1, x_valid, y_train1, y_valid = train_test_split(x_train, y_train, test_size=0.175)
-    x_train = x_train1
-    y_train = y_train1
+def main(epochs=30, batch_size=128):
+    x,y = np.load('./dataset/dataset.npy')
 
-    x_train = x_train.reshape(x_train.shape[0], 28, 28, 1).astype('float32')/255
-    x_valid = x_valid.reshape(x_valid.shape[0], 28, 28, 1).astype('float32')/255
-    x_test = x_test.reshape(x_test.shape[0], 28, 28, 1).astype('float32')/255
+    m = np.max(x)
+    print(m)
+    x = x.reshape(x.shape[0], input_r, input_c, 1).astype('float32') / m  # reshapeうまくいくんか？
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3)
+
+    print('x_train shape:', x_train.shape)
+    print(x_train.shape[0], 'train samples')
+    print(x_test.shape[0], 'test samples')
 
     # convert one-hot vector
     y_train = keras.utils.to_categorical(y_train, 10)
-    y_valid = keras.utils.to_categorical(y_valid, 10)
     y_test = keras.utils.to_categorical(y_test, 10)
 
     # create model
     model = Sequential()
-    model.add(Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=(28, 28, 1)))
+    model.add(Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=(input_r,input_c,1)))
     model.add(Conv2D(64, (3, 3), activation='relu'))
     # model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
@@ -95,7 +96,7 @@ def main(epochs=5, batch_size=128):
     model.add(Dense(10, activation='softmax'))
 
     model.compile(loss='categorical_crossentropy',
-                  optimizer=RMSprop(),
+                  optimizer=Adadelta(),
                   metrics=['accuracy'])
 
     print(model.summary())
@@ -109,14 +110,14 @@ def main(epochs=5, batch_size=128):
     history = model.fit(x_train, y_train,
                         batch_size=batch_size, epochs=epochs,
                         verbose=1,
-                        validation_data=(x_valid, y_valid),
+                        validation_data=(x_test, y_test),
                         callbacks=[plot_losses, csv_logger])
 
     # result
     score = model.evaluate(x_test, y_test, verbose=0)
     print('Test loss: {0}'.format(score[0]))
     print('Test accuracy: {0}'.format(score[1]))
-
+    model.save('voice.h5')
     plot_result(history)
 
 

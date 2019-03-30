@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os,time
 
-seiyu = ['ayaneru']
+seiyu = ['kokoa','chino','rize','chiya','syaro','bgm']
 sampling_rate = 16000
 
 def mel(ndarray):
@@ -31,7 +31,7 @@ def main():
     y = np.array([])
     for n in range(len(seiyu)):
         s = seiyu[n]
-        dir = './dataset/{}/'.format(s)
+        dir = './dataset/{}/'.format(s)  # ディレクトリ名をseiyuリストと合わせておく
         files = os.listdir(dir)
         c = 0
         for f in files:
@@ -41,14 +41,14 @@ def main():
             dur_time = len(y)//sampling_rate
             print(f, dur_time)
 
-            for i in range(dur_time):
-                melspec = mel(y[sampling_rate*i: sampling_rate*(i+1)])
+            for i in range(dur_time*4):
+                melspec = mel(y[sampling_rate//4*i: sampling_rate//4*(i+4)])
                 x.append(melspec)
                 c += 1
 
         np.append(y, [n for _ in range(c)])
     x = np.array(x)
-    np.save('./dataset/dataset.npy',np.array([x,y]))
+    np.save('./dataset/dataset.npy', np.array([x,y]))
     print(time.time() - a)
 
 
