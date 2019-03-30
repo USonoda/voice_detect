@@ -10,38 +10,38 @@ import numpy as np
 input_r, input_c = (256,126)
 
 
-class PlotLosses(Callback):
-    # 学習中のlossについてlive plotする
-
-    def on_train_begin(self, logs={}):
-        '''
-        訓練開始時に実施
-        '''
-        self.epoch_cnt = 0      # epochの回数を初期化
-        plt.axis([0, self.epochs, 0, 0.25])
-        plt.ion()               # pyplotをinteractive modeにする
-
-    def on_train_end(self, logs={}):
-        '''
-        訓練修了時に実施
-        '''
-        plt.ioff()              # pyplotのinteractive modeをoffにする
-        plt.legend(['loss', 'val_loss'], loc='best')
-        plt.show()
-
-    def on_epoch_end(self, epoch, logs={}):
-        '''
-        epochごとに実行する処理
-        '''
-        loss = logs.get('loss')
-        val_loss = logs.get('val_loss')
-        x = self.epoch_cnt
-        # epochごとのlossとval_lossをplotする
-        plt.scatter(x, loss, c='b', label='loss')
-        plt.scatter(x, val_loss, c='r', label='val_loss')
-        plt.pause(0.05)
-        # epoch回数をcount up
-        self.epoch_cnt += 1
+# class PlotLosses(Callback):
+#     # 学習中のlossについてlive plotする
+#
+#     def on_train_begin(self, logs={}):
+#         '''
+#         訓練開始時に実施
+#         '''
+#         self.epoch_cnt = 0      # epochの回数を初期化
+#         plt.axis([0, self.epochs, 0, 0.25])
+#         plt.ion()               # pyplotをinteractive modeにする
+#
+#     def on_train_end(self, logs={}):
+#         '''
+#         訓練修了時に実施
+#         '''
+#         plt.ioff()              # pyplotのinteractive modeをoffにする
+#         plt.legend(['loss', 'val_loss'], loc='best')
+#         plt.show()
+#
+#     def on_epoch_end(self, epoch, logs={}):
+#         '''
+#         epochごとに実行する処理
+#         '''
+#         loss = logs.get('loss')
+#         val_loss = logs.get('val_loss')
+#         x = self.epoch_cnt
+#         # epochごとのlossとval_lossをplotする
+#         plt.scatter(x, loss, c='b', label='loss')
+#         plt.scatter(x, val_loss, c='r', label='val_loss')
+#         plt.pause(0.05)
+#         # epoch回数をcount up
+#         self.epoch_cnt += 1
 
 
 def plot_result(history):
@@ -102,17 +102,11 @@ def main(epochs=50, batch_size=128):
 
     print(model.summary())
 
-    # callback function
-    plot_losses = PlotLosses()      # グラフ表示(live plot)
-    plot_losses.epochs = epochs
-    csv_logger = CSVLogger('trainlog.csv')
-
     # train
     history = model.fit(x_train, y_train,
                         batch_size=batch_size, epochs=epochs,
                         verbose=1,
-                        validation_data=(x_test, y_test),
-                        callbacks=[plot_losses, csv_logger])
+                        validation_data=(x_test, y_test))
 
     # result
     score = model.evaluate(x_test, y_test, verbose=0)
