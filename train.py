@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 import numpy as np
 
-input_r, input_c = 256,173
+input_r, input_c = (256,126)
 
 
 class PlotLosses(Callback):

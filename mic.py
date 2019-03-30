@@ -5,7 +5,7 @@ import librosa
 import librosa.display
 from keras.models import load_model
 
-input_r, input_c = 256,173
+input_r, input_c = (256,126)
 
 
 def main():
