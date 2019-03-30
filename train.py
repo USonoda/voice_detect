@@ -8,6 +8,7 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 
 input_r, input_c = (256,126)
+seiyu = ['kokoa','chino','rize','chiya','syaro','bgm']
 
 
 # class PlotLosses(Callback):
@@ -82,8 +83,8 @@ def main(epochs=50, batch_size=32):
     print(x_test.shape[0], 'test samples')
 
     # convert one-hot vector
-    y_train = keras.utils.to_categorical(y_train, 10)
-    y_test = keras.utils.to_categorical(y_test, 10)
+    y_train = keras.utils.to_categorical(y_train, len(seiyu))
+    y_test = keras.utils.to_categorical(y_test, len(seiyu))
 
     # create model
     model = Sequential()
