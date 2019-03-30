@@ -47,8 +47,8 @@ def main():
                     continue
                 x.append(melspec)
                 c += 1
-
         np.append(y, [n for _ in range(c)])
+        print(c)
     x = np.array(x)
     np.save('./dataset/dataset_x.npy', x)
     np.save('./dataset/dataset_y.npy', y)
