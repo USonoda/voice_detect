@@ -37,18 +37,18 @@ def main():
         for f in files:
             if f[0] == '.':
                 continue
-            y, sr = librosa.load(dir+f,sr=sampling_rate)
-            dur_time = len(y)//sampling_rate
+            S, sr = librosa.load(dir+f,sr=sampling_rate)
+            dur_time = len(S)//sampling_rate
             print(f, dur_time)
 
             for i in range(dur_time*4):
-                melspec = mel(y[sampling_rate//4*i: sampling_rate//4*(i+4)])
+                melspec = mel(S[sampling_rate//4*i: sampling_rate//4*(i+4)])
                 if melspec.shape != (256,126):
                     continue
                 x.append(melspec)
                 c += 1
         np.append(y, [n for _ in range(c)])
-        print(y.shape,y[-1])
+        print(y.shape)
     x = np.array(x)
     np.save('./dataset/dataset_x.npy', x)
     np.save('./dataset/dataset_y.npy', y)
