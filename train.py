@@ -69,7 +69,7 @@ def plot_result(history):
     plt.show()
 
 
-def main(epochs=50, batch_size=32):
+def main(epochs=50, batch_size=64):
     x = np.load('./dataset/dataset_x.npy')
     y = np.load('./dataset/dataset_y.npy')
 
