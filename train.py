@@ -68,12 +68,13 @@ def plot_result(history):
     plt.show()
 
 
-def main(epochs=30, batch_size=128):
-    x,y = np.load('./dataset/dataset.npy')
+def main(epochs=50, batch_size=128):
+    x = np.load('./dataset/dataset_x.npy')
+    y = np.load('./dataset/dataset_y.npy')
 
     m = np.max(x)
     print(m)
-    x = x.reshape(x.shape[0], input_r, input_c, 1).astype('float32') / m  # reshapeうまくいくんか？
+    x = x.reshape(x.shape[0], input_r, input_c, 1).astype('float32') / m  # reshapeうまくいくのか？
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3)
 
     print('x_train shape:', x_train.shape)

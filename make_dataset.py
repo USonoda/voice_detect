@@ -48,7 +48,8 @@ def main():
 
         np.append(y, [n for _ in range(c)])
     x = np.array(x)
-    np.save('./dataset/dataset.npy', np.array([x,y]))
+    np.save('./dataset/dataset_x.npy', x)
+    np.save('./dataset/dataset_y.npy', y)
     print(time.time() - a)
 
 
