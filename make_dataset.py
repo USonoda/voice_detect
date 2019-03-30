@@ -43,6 +43,8 @@ def main():
 
             for i in range(dur_time*4):
                 melspec = mel(y[sampling_rate//4*i: sampling_rate//4*(i+4)])
+                if melspec.shape != (256,126):
+                    continue
                 x.append(melspec)
                 c += 1
 
