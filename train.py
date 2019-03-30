@@ -72,6 +72,7 @@ def plot_result(history):
 def main(epochs=50, batch_size=64):
     x = np.load('./dataset/dataset_x.npy')
     y = np.load('./dataset/dataset_y.npy')
+    class_size = len(seiyu)
 
     m = np.max(x)
     print(m)
@@ -83,19 +84,19 @@ def main(epochs=50, batch_size=64):
     print(x_test.shape[0], 'test samples')
 
     # convert one-hot vector
-    y_train = keras.utils.to_categorical(y_train, len(seiyu))
-    y_test = keras.utils.to_categorical(y_test, len(seiyu))
+    y_train = keras.utils.to_categorical(y_train, class_size)
+    y_test = keras.utils.to_categorical(y_test, class_size)
 
     # create model
     model = Sequential()
-    model.add(Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=(input_r,input_c,1)))
-    model.add(Conv2D(64, (3, 3), activation='relu'))
+    model.add(Conv2D(32, kernel_size=(20, 20), activation='relu', input_shape=(input_r,input_c,1)))
+    model.add(Conv2D(64, (20, 20), activation='relu'))
     # model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
     model.add(Flatten())
     model.add(Dense(128, activation='relu'))
     model.add(Dropout(0.5))
-    model.add(Dense(10, activation='softmax'))
+    model.add(Dense(class_size, activation='softmax'))
 
     model.compile(loss='categorical_crossentropy',
                   optimizer=Adadelta(),
