@@ -1,14 +1,19 @@
 import keras
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPooling2D
+from keras.models import Sequential, Model
+from keras.applications.vgg16 import VGG16
+from keras.layers import Input, Dropout, Flatten, Dense, Conv2D
 from keras.optimizers import Adadelta
-from keras.callbacks import Callback, CSVLogger
+from keras.preprocessing.image import ImageDataGenerator
 from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 import numpy as np
 
 input_r, input_c = (256,126)
 seiyu = ['kokoa','chino','rize','chiya','syaro','bgm']
+class_size = len(seiyu)
+batch_size = 64
+epochs = 50
+m = -80
 
 
 # class PlotLosses(Callback):
@@ -69,49 +74,59 @@ def plot_result(history):
     plt.show()
 
 
-def main(epochs=50, batch_size=64):
+def vgg_model_maker():
+    # VGG16のロード。FC層は不要なので include_top=False
+    input_tensor = Input(shape=(input_r, input_c, 1))
+    vgg16 = VGG16(include_top=False, weights='imagenet', input_tensor=input_tensor)
+
+    # FC層の作成
+    top_model = Sequential()
+    top_model.add(Flatten(input_shape=vgg16.output_shape[1:]))
+    top_model.add(Dense(256, activation='relu'))
+    top_model.add(Dropout(0.5))
+    top_model.add(Dense(class_size, activation='softmax'))
+
+    # VGG16とFC層を結合してモデルを作成
+    model = Model(input=vgg16.input, output=top_model(vgg16.output))
+
+    return model
+
+
+def main():
     x = np.load('./dataset/dataset_x.npy')
     y = np.load('./dataset/dataset_y.npy')
-    class_size = len(seiyu)
 
-    m = np.max(x)
-    print(m)
     x = x.reshape(x.shape[0], input_r, input_c, 1).astype('float32') / m  # reshapeうまくいくのか？
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)  # valid サイズ大きい？
+    x_train, x_val, y_train, y_val = train_test_split(x, y, test_size=0.2)
 
     print('x_train shape:', x_train.shape)
     print(x_train.shape[0], 'train samples')
-    print(x_test.shape[0], 'test samples')
+    print(x_val.shape[0], 'test samples')
 
     # convert one-hot vector
     y_train = keras.utils.to_categorical(y_train, class_size)
-    y_test = keras.utils.to_categorical(y_test, class_size)
+    y_val = keras.utils.to_categorical(y_val, class_size)
 
     # create model
-    model = Sequential()
-    model.add(Conv2D(32, kernel_size=(20, 20), activation='relu', input_shape=(input_r,input_c,1)))
-    model.add(Conv2D(64, (20, 20), activation='relu'))
-    # model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.25))
-    model.add(Flatten())
-    model.add(Dense(128, activation='relu'))
-    model.add(Dropout(0.5))
-    model.add(Dense(class_size, activation='softmax'))
+    model = vgg_model_maker()
+
+    # 最後のconv層の直前までの層をfreeze
+    for layer in model.layers[:15]:
+        layer.trainable = False
 
     model.compile(loss='categorical_crossentropy',
                   optimizer=Adadelta(),
                   metrics=['accuracy'])
 
-    print(model.summary())
-
     # train
     history = model.fit(x_train, y_train,
-                        batch_size=batch_size, epochs=epochs,
+                        batch_size=batch_size,
+                        epochs=epochs,
                         verbose=1,
-                        validation_data=(x_test, y_test))
+                        validation_data=(x_val, y_val))
 
     # result
-    score = model.evaluate(x_test, y_test, verbose=0)
+    score = model.evaluate(x_val, y_val, verbose=0)
     print('Test loss: {0}'.format(score[0]))
     print('Test accuracy: {0}'.format(score[1]))
     model.save('voice.h5')
