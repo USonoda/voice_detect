@@ -11,7 +11,7 @@ import numpy as np
 input_r, input_c = (256,126)
 seiyu = ['kokoa','chino','rize','chiya','syaro','bgm']
 class_size = len(seiyu)
-batch_size = 64
+batch_size = 128
 epochs = 50
 m = -80
 
@@ -78,7 +78,8 @@ def main():
     x = np.load('./dataset/dataset_x.npy')
     y = np.load('./dataset/dataset_y.npy')
 
-    x = x.reshape(x.shape[0], input_r, input_c, 1).astype('float32') / m  # reshapeうまくいくのか？
+    x = x.reshape(x.shape[0], input_r, input_c, 1).astype('float32') / m
+    x = np.concatenate([x,x,x], axis=3)
     x_train, x_val, y_train, y_val = train_test_split(x, y, test_size=0.2)
 
     print('x_train shape:', x_train.shape)
@@ -90,7 +91,7 @@ def main():
     y_val = keras.utils.to_categorical(y_val, class_size)
 
     # create model
-    base_model = InceptionV3(weights='imagenet', include_top=False, input_shape=(input_r,input_c,1))
+    base_model = InceptionV3(weights='imagenet', include_top=False, input_shape=(input_r,input_c,3))
     x = base_model.output
     x = GlobalAveragePooling2D()(x)
     x = Dense(1024, activation='relu')(x)

@@ -6,7 +6,7 @@ import librosa.display
 from keras.models import load_model
 
 input_r, input_c = (256,126)
-
+m = -80
 
 def main():
     CHUNK = 1024  # バッファのサンプル数
@@ -44,9 +44,9 @@ def main():
             # melspecs のshapeは　(n_mels, t)
             melspecs = librosa.power_to_db(melspecs, ref=np.max)
 
-            melspecs = melspecs.reshape(input_r,input_c,1).astype('float32')/np.max(melspecs)
+            melspecs = melspecs.reshape(input_r,input_c,1).astype('float32')/m
             print(melspecs.shape)
-
+            x = np.concatenate([melspecs, melspecs, melspecs], axis=3)
             # print(判定結果)
 
         except KeyboardInterrupt:
