@@ -1,12 +1,15 @@
 import keras
 from keras.models import Sequential, Model
 from keras.applications.inception_v3 import InceptionV3
-from keras.layers import Dense, GlobalAveragePooling2D
+from keras.layers import Dense, Input, Dropout, Flatten,
 from keras.optimizers import Adadelta
 from keras.preprocessing.image import ImageDataGenerator
 from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 import numpy as np
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
+
 
 input_r, input_c = (256,126)
 seiyu = ['kokoa','chino','rize','chiya','syaro','bgm']
@@ -92,12 +95,15 @@ def main():
 
     # create model
     base_model = InceptionV3(weights='imagenet', include_top=False, input_shape=(input_r,input_c,3))
-    x = base_model.output
-    x = GlobalAveragePooling2D()(x)
-    x = Dense(1024, activation='relu')(x)
-    predictions = Dense(class_size, activation='softmax')(x)
 
-    model = Model(inputs=base_model.input, outputs=predictions)
+    # FC層の作成
+    top_model = Sequential()
+    top_model.add(Flatten())
+    top_model.add(Dense(256, activation='relu'))
+    top_model.add(Dropout(0.5))
+    top_model.add(Dense(class_size, activation='softmax'))
+
+    model = Model(inputs=base_model.input, outputs=top_model)
     for layer in base_model.layers:
         layer.trainable = False
     model.compile(loss='categorical_crossentropy',
