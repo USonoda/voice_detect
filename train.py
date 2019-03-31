@@ -114,6 +114,7 @@ def main():
 
     # train
     history = model.fit_generator(gen.flow(x_train, y_train, batch_size=batch_size),
+                                  steps_per_epoch=x_train.shape[0]//batch_size,
                                   epochs=epochs,
                                   verbose=1,
                                   validation_data=(x_val, y_val))
