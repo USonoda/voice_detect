@@ -113,11 +113,11 @@ def main():
     gen = ImageDataGenerator(width_shift_range=0.2)
 
     # train
-    history = model.fit(gen.flow(x_train, y_train, batch_size=batch_size),
-                        batch_size=batch_size,
-                        epochs=epochs,
-                        verbose=1,
-                        validation_data=(x_val, y_val))
+    history = model.fit_generator(gen.flow(x_train, y_train, batch_size=batch_size),
+                                  batch_size=batch_size,
+                                  epochs=epochs,
+                                  verbose=1,
+                                  validation_data=(x_val, y_val))
 
     # result
     score = model.evaluate(x_val, y_val, verbose=0)
