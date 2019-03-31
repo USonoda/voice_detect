@@ -103,7 +103,7 @@ def main():
     top_model.add(Dropout(0.5))
     top_model.add(Dense(class_size, activation='softmax'))
 
-    model = Model(inputs=base_model.input, outputs=top_model)
+    model = Model(inputs=base_model.input, outputs=top_model(base_model.output))
     for layer in base_model.layers:
         layer.trainable = False
     model.compile(loss='categorical_crossentropy',
