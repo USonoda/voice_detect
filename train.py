@@ -1,7 +1,7 @@
 import keras
 from keras.models import Sequential, Model
 from keras.applications.inception_v3 import InceptionV3
-from keras.layers import Dense, Input, Dropout, Flatten,
+from keras.layers import Dense, Dropout, Flatten
 from keras.optimizers import Adadelta
 from keras.preprocessing.image import ImageDataGenerator
 from matplotlib import pyplot as plt
