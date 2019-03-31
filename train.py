@@ -15,7 +15,7 @@ input_r, input_c = (256,126)
 seiyu = ['kokoa','chino','rize','chiya','syaro','bgm']
 class_size = len(seiyu)
 batch_size = 128
-epochs = 200
+epochs = 100
 m = -80
 
 
@@ -110,8 +110,10 @@ def main():
                   optimizer=Adadelta(),
                   metrics=['accuracy'])
 
+    gen = ImageDataGenerator(width_shift_range=0.2)
+
     # train
-    history = model.fit(x_train, y_train,
+    history = model.fit(gen.flow(x_train, y_train, batch_size=batch_size),
                         batch_size=batch_size,
                         epochs=epochs,
                         verbose=1,
