@@ -1,6 +1,6 @@
 import keras
 from keras.models import Sequential, Model
-from keras.applications.inception_v3 import InceptionV3
+from keras.applications.vgg16 import VGG16
 from keras.layers import Dense, Dropout, Flatten
 from keras.optimizers import Adadelta
 from keras.preprocessing.image import ImageDataGenerator
@@ -94,7 +94,7 @@ def main():
     y_val = keras.utils.to_categorical(y_val, class_size)
 
     # create model
-    base_model = InceptionV3(weights='imagenet', include_top=False, input_shape=(input_r,input_c,3))
+    base_model = VGG16(weights='imagenet', include_top=False, input_shape=(input_r,input_c,3))
 
     # FC層の作成
     top_model = Sequential()
