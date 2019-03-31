@@ -1,0 +1,2 @@
+voice.h5 filter=lfs diff=lfs merge=lfs -text
+dataset/dataset_x.npy filter=lfs diff=lfs merge=lfs -text
