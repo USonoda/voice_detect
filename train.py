@@ -15,7 +15,7 @@ input_r, input_c = (256,126)
 seiyu = ['kokoa','chino','rize','chiya','syaro','bgm']
 class_size = len(seiyu)
 batch_size = 128
-epochs = 50
+epochs = 200
 m = -80
 
 
