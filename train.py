@@ -1,7 +1,7 @@
 import keras
 from keras.models import Sequential, Model
-from keras.applications.vgg16 import VGG16
-from keras.layers import Input, Dropout, Flatten, Dense, Conv2D
+from keras.applications.inception_v3 import InceptionV3
+from keras.layers import Dense, GlobalAveragePooling2D
 from keras.optimizers import Adadelta
 from keras.preprocessing.image import ImageDataGenerator
 from matplotlib import pyplot as plt
@@ -74,24 +74,6 @@ def plot_result(history):
     plt.show()
 
 
-def vgg_model_maker():
-    # VGG16のロード。FC層は不要なので include_top=False
-    input_tensor = Input(shape=(input_r, input_c, 1))
-    vgg16 = VGG16(include_top=False, weights='imagenet', input_tensor=input_tensor)
-
-    # FC層の作成
-    top_model = Sequential()
-    top_model.add(Flatten(input_shape=vgg16.output_shape[1:]))
-    top_model.add(Dense(256, activation='relu'))
-    top_model.add(Dropout(0.5))
-    top_model.add(Dense(class_size, activation='softmax'))
-
-    # VGG16とFC層を結合してモデルを作成
-    model = Model(input=vgg16.input, output=top_model(vgg16.output))
-
-    return model
-
-
 def main():
     x = np.load('./dataset/dataset_x.npy')
     y = np.load('./dataset/dataset_y.npy')
@@ -108,12 +90,15 @@ def main():
     y_val = keras.utils.to_categorical(y_val, class_size)
 
     # create model
-    model = vgg_model_maker()
+    base_model = InceptionV3(weights='imagenet', include_top=False, input_shape=(input_r,input_c,1))
+    x = base_model.output
+    x = GlobalAveragePooling2D()(x)
+    x = Dense(1024, activation='relu')(x)
+    predictions = Dense(class_size, activation='softmax')(x)
 
-    # 最後のconv層の直前までの層をfreeze
-    for layer in model.layers[:15]:
+    model = Model(inputs=base_model.input, outputs=predictions)
+    for layer in base_model.layers:
         layer.trainable = False
-
     model.compile(loss='categorical_crossentropy',
                   optimizer=Adadelta(),
                   metrics=['accuracy'])
